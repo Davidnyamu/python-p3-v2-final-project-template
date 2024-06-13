@@ -1,5 +1,3 @@
-# todolist.py
-
 import sqlite3
 
 # SQLite database path
@@ -61,11 +59,12 @@ def mark_task(task_id, completed):
 def delete_task(task_id):
     execute_query('DELETE FROM tasks WHERE id = ?', (task_id,))
 
+# Main execution
 if __name__ == '__main__':
     init_db()  # Initialize the database
 
     while True:
-        print("\nTODO List CLI")
+        print("\nTODO List Operations")
         print("1. Add task")
         print("2. List tasks")
         print("3. Update task title")
