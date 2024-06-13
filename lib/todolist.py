@@ -1,8 +1,26 @@
+# todolist.py
+
 import sqlite3
-import os
 
 # SQLite database path
 DATABASE_PATH = 'todo.db'
+
+# Function to initialize database and create tasks table
+def init_db():
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    # Create tasks table if not exists
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            completed INTEGER DEFAULT 0
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
 
 # Function to execute SQL queries
 def execute_query(query, values=()):
@@ -12,22 +30,12 @@ def execute_query(query, values=()):
     conn.commit()
     conn.close()
 
-def create_tasks_table():
-    query = '''
-    CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        completed INTEGER DEFAULT 0
-    );
-    '''
-    execute_query(query)
-
+# Function to add a new task
 def add_task(title):
-    create_tasks_table()  # Ensure tasks table exists
     execute_query('INSERT INTO tasks (title) VALUES (?)', (title,))
 
+# Function to list all tasks
 def list_tasks():
-    create_tasks_table()  # Ensure tasks table exists
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM tasks ORDER BY id')
@@ -41,22 +49,20 @@ def list_tasks():
             status = "Complete" if task[2] == 1 else "Incomplete"
             print(f"{task[0]}: {task[1]} - {status}")
 
-def update_task(task_id, title):
-    create_tasks_table()  # Ensure tasks table exists
-    execute_query('UPDATE tasks SET title = ? WHERE id = ?', (title, task_id))
+# Function to update task title
+def update_task(task_id, new_title):
+    execute_query('UPDATE tasks SET title = ? WHERE id = ?', (new_title, task_id))
 
+# Function to mark task as complete or incomplete
 def mark_task(task_id, completed):
-    create_tasks_table()  # Ensure tasks table exists
     execute_query('UPDATE tasks SET completed = ? WHERE id = ?', (completed, task_id))
 
+# Function to delete a task
 def delete_task(task_id):
-    create_tasks_table()  # Ensure tasks table exists
     execute_query('DELETE FROM tasks WHERE id = ?', (task_id,))
 
 if __name__ == '__main__':
-    # Check if database file exists, create it if not
-    if not os.path.exists(DATABASE_PATH):
-        open(DATABASE_PATH, 'w').close()  # Create an empty file
+    init_db()  # Initialize the database
 
     while True:
         print("\nTODO List CLI")
